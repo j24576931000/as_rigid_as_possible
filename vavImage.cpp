@@ -32,6 +32,14 @@ bool vavImage::ReadImage( std::string path )
 	else 
 		return false;
 }
+bool vavImage::ReadImage_rgb(std::string path)
+{
+	m_Image2 = cv::imread(path.c_str());
+	if (m_Image2.cols > 0 && m_Image2.rows > 0)
+		return true;
+	else
+		return false;
+}
 
 cv::Mat vavImage::CannyEdge( double threshold1/*=0*/, double threshold2/*=30*/, int apertureSize/*=3*/, bool L2gradient/*=false*/ )
 {
@@ -478,6 +486,23 @@ void vavImage::drawImage()
 			cv::Vec3b& intensity = m_Image.at<cv::Vec3b>(i, j);
 			glColor3d(intensity[2], intensity[1], intensity[0]);
 			glVertex2d(j,i);
+			//std::cout << " x:" << j << "y: " << i << std::endl;
+		}
+	}
+	glEnd();
+}
+void vavImage::drawImage_rgb()
+{
+	glPointSize(1.0);
+	glBegin(GL_POINTS);
+	for (int j = 1; j < m_Image2.cols - 1; ++j)
+	{
+		for (int i = 1; i < m_Image2.rows - 1; ++i)
+		{
+			cv::Vec3b& intensity = m_Image2.at<cv::Vec3b>(i, j);
+			glColor3d(intensity[2], intensity[1], intensity[0]);
+			glVertex2d(j, i);
+			
 		}
 	}
 	glEnd();

@@ -27,6 +27,7 @@ public:
 	vavImage(void);
 	~vavImage(void);
 	bool	ReadImage(std::string path);
+	bool	ReadImage_rgb(std::string path);
 	cv::Mat	CannyEdge(double threshold1=0, double threshold2=30, int apertureSize=3, bool L2gradient=false);
 	bool	Vaild();
 	int	GetWidth() {return m_Image.rows;}
@@ -45,10 +46,11 @@ public:
 	void	ShowEdgeLine();
 	void	Resize(int x, int y, int method = cv::INTER_LINEAR);
 	void	drawImage();
-
+	void	drawImage_rgb();
 	int IsinsidePoint(int x1, int y1,int x2,int y2,int x3,int y3);
 	Vector2s GetContour();
 private:
 	cv::Mat	m_Image;
 	cv::Mat save_Image;
+	cv::Mat	m_Image2;
 };

@@ -15,6 +15,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 //using namespace cv;
+
 using namespace std;
 
 // Direct implementation of Igarashi's As-Rigid-As-Possible Shape Manipulation
@@ -457,6 +458,7 @@ class TriMesh2D
 {
 public:
 	vector<Point2D> vertices;
+	vector<Point2D> texcoord;
 	vector<vector<Point2D>> record_v;
 	vector<Tri> tris;
 	vector<int> normals;//1¥¿  -1­t
@@ -528,7 +530,7 @@ public:
 	void OnDrawInfo(int vp = -1);
 	void OnMotion(int x, int y, int flag,bool mouse_down=0, int vp = -1);
 	void OnMouse(int button, int button_state, int x, int y, int vp = -1);
-	void OnKeyboard(unsigned char key, int x, int y);
+	void OnKeyboard(unsigned char key);
 	void OnSpecialKey(int key, int x, int y);
 
 	//get the selected vertex position

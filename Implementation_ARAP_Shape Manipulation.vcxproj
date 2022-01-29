@@ -76,6 +76,7 @@
       <AdditionalOptions>/wd4430 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <CompileAsManaged>true</CompileAsManaged>
+      <AdditionalIncludeDirectories>D:\mesh\貼圖\OpenMesh_EX_update3\OpenMesh_EX\opengl\stb-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

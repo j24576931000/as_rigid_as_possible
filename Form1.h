@@ -18,6 +18,7 @@
 #include "ArapInteractor_2.h"
 #include "vavImage.h"
 #include "TriangulationCgal.h"
+//#include <stb_image.h>
 #pragma region Application variables
 
 vavImage	  *ImageEdge=NULL;	   //find contour
@@ -116,8 +117,8 @@ namespace As_rigid_as_test {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting2 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
-			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat2 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
+			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting1 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
+			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat1 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->hkoglPanelControl1 = (gcnew HKOGLPanel::HKOGLPanelControl());
 			this->button2 = (gcnew System::Windows::Forms::Button());
@@ -132,21 +133,22 @@ namespace As_rigid_as_test {
 			// hkoglPanelControl1
 			// 
 			this->hkoglPanelControl1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Zoom;
-			hkcoglPanelCameraSetting2->Far = 1000;
-			hkcoglPanelCameraSetting2->Fov = 45;
-			hkcoglPanelCameraSetting2->Near = -1000;
-			hkcoglPanelCameraSetting2->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
-			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting2;
+			hkcoglPanelCameraSetting1->Far = 1000;
+			hkcoglPanelCameraSetting1->Fov = 45;
+			hkcoglPanelCameraSetting1->Near = -1000;
+			hkcoglPanelCameraSetting1->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
+			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting1;
 			this->hkoglPanelControl1->Location = System::Drawing::Point(136, 13);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
-			hkcoglPanelPixelFormat2->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat2->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			hkcoglPanelPixelFormat2->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
-			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat2;
+			hkcoglPanelPixelFormat1->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat1->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat1->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat1;
 			this->hkoglPanelControl1->Size = System::Drawing::Size(734, 682);
 			this->hkoglPanelControl1->TabIndex = 9;
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &Form1::hkoglPanelControl1_Load);
 			this->hkoglPanelControl1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::hkoglPanelControl1_Paint);
+			this->hkoglPanelControl1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Form1::hkoglPanelControl1_KeyPress);
 			this->hkoglPanelControl1->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::hkoglPanelControl1_MouseClick);
 			this->hkoglPanelControl1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::hkoglPanelControl1_MouseDown);
 			this->hkoglPanelControl1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::hkoglPanelControl1_MouseMove);
@@ -250,10 +252,13 @@ private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::
 		 if(Current_Display.openImg)
 		 {
 			 ImageEdge->drawImage();
+			 //ImageEdge->drawImage_rgb();
 		 }
 		 if(Current_Display.triangulation)
 		 {
+			 //ImageEdge->drawImage();
 			 Arap->OnDraw(); 
+			
 		 }
 		 int now = System::DateTime::Now.Second;
 		 //std::cout << now << std::endl;
@@ -325,7 +330,8 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 	 }
 private: System::Void button2_Click_1(System::Object^  sender, System::EventArgs^  e) {//open image 
 		 Current_Display.openImg=1;
-		 ImageEdge->ReadImage("test2.png");
+		 ImageEdge->ReadImage("eevee_mask.png");
+		 //ImageEdge->ReadImage_rgb("1111.png");
 		 *ImageEdge = (ImageEdge->CannyEdge());
 	 
 		 //std::cout<<"Load img :"<<ImageEdge->GetHeight()<<"*"<<ImageEdge->GetWidth()<<std::endl;
@@ -349,12 +355,15 @@ private: System::Void Button3_Click(System::Object^  sender, System::EventArgs^ 
 
 			 Triangulate->DelaunayMesher2();
 			 meshPointset=Triangulate->MeshPointSet();
-
+			 //std::cout << "meshPointset.size(): " << meshPointset.size() << std::endl;
 			 for(int i=0 ;i < meshPointset.size() ; i++ )
 			 {
 				 test_1->vertices.push_back(Point2D(meshPointset[i][0],meshPointset[i][1]));
 			 }
-
+			 for (int i = 0; i < meshPointset.size(); i++)
+			 {
+				 test_1->texcoord.push_back(Point2D((meshPointset[i][0]-1)/535, (meshPointset[i][1]-1)/533));
+			 }
  			 Tris=Triangulate->GetTriangles();
  			 //std::cout<<"Tris.size() :"<<Tris.size()<<std::endl;
 			 Tri v;
@@ -443,6 +452,21 @@ private: System::Void Button3_Click(System::Object^  sender, System::EventArgs^ 
 			
 			hkoglPanelControl1->Invalidate();
 		}
+	private: System::Void hkoglPanelControl1_KeyPress(System::Object^  sender, System::Windows::Forms::KeyPressEventArgs^  e) {
+	
+		if (e->KeyChar == 'f' || e->KeyChar == 'F') {
+			
+			Arap->OnKeyboard(e->KeyChar);
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+		else if (e->KeyChar == '1' ) {
+			Arap->OnKeyboard(e->KeyChar);
+
+			hkoglPanelControl1->Invalidate();
+			//e.Handled = true;
+		}
+	}
 };
 }
 

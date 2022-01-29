@@ -17,14 +17,20 @@ TriangulationCgal::~TriangulationCgal(void)
 
 void TriangulationCgal::AddPoint( float x, float y )
 {
+	if (y==534)
+	{
+		return;
+	}
 	Vertex_handle vp =m_Triangulation.insert(Point(x, y));
+	//std::cout << x << " : " << y << std::endl;
 	ContourPoint.push_back(vp);
+
 	//m_Triangulation.insert_constraint(x, y);
 }
 
 void TriangulationCgal::Compute()
 {
-	std::cout << "Compute Triangulation" << std::endl;
+	//std::cout << "Compute Triangulation" << std::endl;
 
 	m_Triangles.clear();
 	Triangle t;
@@ -61,12 +67,18 @@ void TriangulationCgal::DelaunayMesher2()
 
 	Triangle t;
 	m_Triangles.clear();
+	int num = 0;
 	Finite_faces_iterator fc = m_Triangulation.finite_faces_begin();
 	for( ; fc != m_Triangulation.finite_faces_end(); ++fc)
 	{
 		t.m_Points[0] = Vector2((int)fc->vertex(0)->point()[0], (int)fc->vertex(0)->point()[1]);
 		t.m_Points[1] = Vector2((int)fc->vertex(1)->point()[0], (int)fc->vertex(1)->point()[1]);
 		t.m_Points[2] = Vector2((int)fc->vertex(2)->point()[0], (int)fc->vertex(2)->point()[1]);
+		
+		/*std::cout << "vertices 0: " << t.m_Points[0] << std::endl;
+		std::cout << "vertices 1: " << t.m_Points[1] << std::endl;
+		std::cout << "vertices 2: " << t.m_Points[2] << std::endl;*/
+		num++;
 		m_Triangles.push_back(t);
 	}
 	Finite_vertices_iterator p= m_Triangulation.finite_vertices_begin();
@@ -99,10 +111,12 @@ int TriangulationCgal::getVertexID(float x, float y)
 	int ID=0;
 	for(;p != m_Triangulation.finite_vertices_end(); ++p)
 	{
-		if((int)p->point()[0]==x && (int)p->point()[1]==y)
+		if ((int)p->point()[0] == x && (int)p->point()[1] == y)
+		{
 			return ID;
+		}
 		ID++;
-		//std::cout<<p<<","<<std::endl;
+		
 	}
 	std::cout<<"not found!!";
 }

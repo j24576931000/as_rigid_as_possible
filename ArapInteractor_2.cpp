@@ -8,7 +8,8 @@
 #define GLUT_DISABLE_ATEXIT_HACK
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 using namespace std;
 
 #include "ArapInteractor_2.h"
@@ -22,21 +23,24 @@ int show_fitted = true;
 #define ARAP_DO_VERIFY	0
 
 #define ARAP_DO_VERIFY	0
-
+GLuint idd;
 void TriMesh2D::draw(bool linemode)
 {	
 	//glColor3f(1.0, 0.0, 0.0);
+	glBindTexture(GL_TEXTURE_2D, idd);
 	if (linemode)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glVertexPointer(2, GL_DOUBLE, sizeof(vertices[0]), &vertices[0][0]);
-
-	glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_INT, (GLvoid*)tris[0]);
+	//glEnableClientState(GL_NORMAL_ARRAY);
+	//glNormalPointer( GL_DOUBLE, sizeof(normals[0]), &normals[0]);
 	
-
+	glTexCoordPointer(2,GL_DOUBLE, sizeof(texcoord[0]), &texcoord[0][0]);
+	glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_INT, (GLvoid*)tris[0]);	
 }
 void TriMesh2D::compute_normal()
 {
@@ -52,7 +56,7 @@ void TriMesh2D::compute_normal()
 			normals.push_back(1);
 		else 
 			normals.push_back(-1);
-		//cout<<normals[i]<<endl;
+		//cout<<i<<" :i: "<<normals[i]<<endl;
 	}
 }
 int TriMesh2D::normal_detection()
@@ -821,7 +825,7 @@ void ArapInteractor::getHeachTri(const Tri& t, double H[][6])
 
 void ArapInteractor::preCompH()
 {
-	std::cout << "precomph" << std::endl;
+	//std::cout << "precomph" << std::endl;
 	int nv = flags.size();
 	BigH.resetDim(nv*2, nv*2);
 
@@ -1062,7 +1066,7 @@ void ArapInteractor::step2()//0.6
 
 	// Compute f0 and f1
  	vector<double> f(nv*2, 0), f0(cur_free*2), f1(cur_ctrl*2);
- 
+	
 	for (int ti = 0; ti < nt; ti++) {
 		const Tri& t = themesh.tris[ti];
 		vector<Point2D>& fitted = fittedVertices[ti];
@@ -1101,15 +1105,16 @@ void ArapInteractor::step2()//0.6
 		themesh.vertices[i][1] = u[ui++];
 	}
 	
-	themesh.record_v.push_back(themesh.vertices);
-	for (int i = 0; i < themesh.record_v.size(); i++)
-	{
-		for (int j = 0; j < themesh.record_v[i].size(); j++)
-		{
-			//std::cout << "control: " << (themesh.record_v)[i][j][0] << std::endl;
-			//std::cout << "control: " << (themesh.record_v)[i][j][1] << std::endl;
-		}
-	}
+	////themesh.record_v.push_back(themesh.vertices);
+	//for (int i = 0; i < themesh.record_v.size(); i++)
+	//{
+	//	for (int j = 0; j < themesh.record_v[i].size(); j++)
+	//	{
+	//		//std::cout << "control: " << (themesh.record_v)[i][j][0] << std::endl;
+	//		//std::cout << "control: " << (themesh.record_v)[i][j][1] << std::endl;
+	//	}
+	//}
+
 }
 
 void ArapInteractor::deform()
@@ -1129,7 +1134,7 @@ void ArapInteractor::deform()
 		step2();//0.004s
 		return;
 	}
-
+	
 	if (ctrl_verts.size() == nv) 
 	{
 	} 
@@ -1142,11 +1147,12 @@ void ArapInteractor::deform()
 			//std::cout << "themesh.vertices deform: " << themesh.vertices[i] << std::endl;
 		}
 	} else 
-	{
-		themesh.vertices = baseVertices;
-		
+	{	
+		themesh.vertices = baseVertices;	
 	}
+	
 	step2();//0.004
+	
 
 }
 void ArapInteractor::recover_mesh()
@@ -1203,14 +1209,14 @@ void ArapInteractor::OnDraw(int vp)
 
 	// Draw the mesh
 	glLineWidth(1);
-
-	glColor3f(.9f, .7f, .5f);
-
+	glColor3f(1.f, 1.f, 1.f);
+	//glColor3f(.847f, .749f, .847f);
+	//glColor3f(.804f, .5215f, .0f);
 	glTranslated(0, 0, -.01);
 	themesh.draw(false);
 	glTranslated(0, 0, .01);
 
-	glColor3f(.1f, .1f, .1f);
+	glColor3f(.0f, .0f, .0f);
 	themesh.draw(true);
 	
 	if (show_fitted && step1_only) {
@@ -1309,6 +1315,7 @@ int ArapInteractor::getVertex(int x, int y)
 void ArapInteractor::OnMouse(int button, int button_state, int x, int y, int vp)
 {
 	Point2D pos = Point2D((double)x, (double)y);
+	
  	double thresh = 15.0;
  
 	
@@ -1338,7 +1345,7 @@ void ArapInteractor::OnMouse(int button, int button_state, int x, int y, int vp)
 		for (int i = 0; i < (int)themesh.vertices.size(); i++){
 			if (dist(themesh.vertices[i], pos) > thresh || !flags[i])
 				continue;
-
+			//std::cout <<"x: " <<themesh.vertices[i][0] <<std::endl;
 			ctrlPoints.push_back(i);
 		}
 	}
@@ -1365,12 +1372,20 @@ void ArapInteractor::OnMouse(int button, int button_state, int x, int y, int vp)
 	}
 }
 
-void ArapInteractor::OnKeyboard(unsigned char key, int x, int y)
+void ArapInteractor::OnKeyboard(unsigned char key)
 {
 	if (key == '1')
+	{
 		step1_only = !step1_only;
+		//std::cout << "step1_only=" << step1_only << std::endl;
+	}
+		
 	if (key == 'f')
+	{
 		show_fitted = !show_fitted;
+		//std::cout << "show_fitted="<<show_fitted <<std::endl;
+	}
+		
 }
 
 void ArapInteractor::OnSpecialKey(int key, int x, int y)
@@ -1398,7 +1413,26 @@ void OpenGLinitial()
 	glLightfv(GL_LIGHT0,GL_SPECULAR,specular);
 	glLightfv(GL_LIGHT0,GL_POSITION,Lposition);
 	glEnable(GL_LIGHT0);
+	int image_width;
+	int image_height;
+	int imgcor;
+	
+	//stbi_set_flip_vertically_on_load(true);
+	unsigned char* bytes = stbi_load("eevee.png", &image_width, &image_height, &imgcor, 0);
+	glGenTextures(1, &idd);
+	//glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, idd);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//glGenerateMipmap(GL_TEXTURE_2D);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	stbi_image_free(bytes);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 	glClearColor(1.0f , 1.0f , 1.0f , 1.0f);
 }
 void PanelResize(int width , int height)
